@@ -1,50 +1,22 @@
 require('./config/config');
 const express = require('express');
+const moongose = require('mongoose');
 const app = express();
-
-
 const bodyParser = require('body-parser');
+
+//Parse apliccation/x-www-form-urlencode
 app.use(bodyParser.urlencoded({ extended: false }));
+//Parse formato a aplication/json
 app.use(bodyParser.json());
+//Archivo agrupador de rutas
+app.use(require('./routes/index'));
 
-app.get('/usuario', (req, res) => {
-    res.json('get usuario');
+//Conexion a la base de datos
+moongose.connect('mongodb://localhost:27017/cafeteria', { useNewUrlParser: true, useUnifiedTopology: true }, (err, resp) => {
+    if (err) throw err;
+    console.log('Base de datos oline');
 });
-
-app.get('/usuario/:id/:nombre', (req, res) => {
-    let id = req.params.id;
-    let nombre = req.params.nombre;
-
-    res.json({
-        id,
-        nombre
-    });
-
+//Puerto de escucha de la aplicacion
+app.listen(process.env.PORT, () => {
+    console.log('Escuchando por el puerto ', process.env.PORT)
 });
-
-app.post('/usuario', (req, res) => {
-    let nombre = req.body.nombre;
-    let edad = req.body.edad;
-
-    if (nombre === undefined || edad === undefined) {
-        res.status(400).json({
-            ok: 'false',
-            err: 'Completar todos los campos'
-        });
-    } else {
-        res.json({
-            nombre,
-            edad
-        });
-    }
-});
-
-app.put('/usuario', (req, res) => {
-    res.json('put usuario');
-});
-
-app.delete('/usuario', (req, res) => {
-    res.json('delete usuario');
-});
-
-app.listen(process.env.PORT);
